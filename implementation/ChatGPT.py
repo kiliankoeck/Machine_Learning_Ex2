@@ -1,8 +1,5 @@
 import numpy as np
-from sklearn.metrics import mean_squared_error
-from sklearn import datasets
-from sklearn.model_selection import train_test_split
-
+import pandas as pd
 
 class DecisionTreeRegressor:
     def __init__(self, max_depth=10, min_samples_split=2):
@@ -11,6 +8,8 @@ class DecisionTreeRegressor:
         self.tree = None
 
     def fit(self, X, y):
+        X = X.to_numpy() if isinstance(X, pd.DataFrame) else X
+        y = y.to_numpy() if isinstance(y, pd.Series) else y
         self.tree = self._build_tree(X, y)
 
     def _build_tree(self, X, y, depth=0):
@@ -68,6 +67,7 @@ class DecisionTreeRegressor:
             return self.predict_row(node["right"], row)
 
     def predict(self, X):
+        X = X.to_numpy() if isinstance(X, pd.DataFrame) else X
         return np.array([self.predict_row(self.tree, row) for row in X])
 
 
@@ -80,6 +80,8 @@ class RandomForestRegressor:
         self.trees = []
 
     def fit(self, X, y):
+        X = X.to_numpy() if isinstance(X, pd.DataFrame) else X
+        y = y.to_numpy() if isinstance(y, pd.Series) else y
         self.trees = []
         for _ in range(self.n_trees):
             X_sample, y_sample = self._bootstrap_sample(X, y)
@@ -93,23 +95,6 @@ class RandomForestRegressor:
         return X[idxs], y[idxs]
 
     def predict(self, X):
+        X = X.to_numpy() if isinstance(X, pd.DataFrame) else X
         tree_preds = np.array([tree.predict(X) for tree in self.trees])
         return np.mean(tree_preds, axis=0)
-
-
-data = datasets.load_diabetes()
-X, y = data.data, data.target
-
-X_train, X_test, y_train, y_test = train_test_split(
-    X, y, test_size = 0.2, random_state=1234
-)
-
-ml = RandomForestRegressor()
-ml.fit(X_train, y_train)
-predictions = ml.predict(X_test)
-
-def mse(y_test, y_pred):
-    return np.mean((y_test - y_pred) ** 2)
-
-print("Mean Squared Error ChatGPT:", mse(y_test, predictions))
-
