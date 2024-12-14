@@ -42,7 +42,7 @@ class DecisionTree:
 
         # To fix error in house dataset
         if best_feature is None or best_thresh is None:
-           return Node(value=np.median(y))
+           return Node(value=np.mean(y))
 
         left_idxs, right_idxs = self._split(X[:, best_feature], best_thresh)
         left = self._grow_tree(X[left_idxs, :], y[left_idxs], depth=depth + 1)
