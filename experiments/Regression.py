@@ -1,3 +1,9 @@
+import sys
+import os
+# Add the project root directory to sys.path
+sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
+
+
 from sklearn import datasets
 from sklearn.model_selection import train_test_split
 from sklearn.ensemble import RandomForestRegressor
@@ -13,7 +19,7 @@ X_train, X_test, y_train, y_test = train_test_split(
     X, y, test_size = 0.2, random_state=1234
 )
 
-ml = RandomForest()
+ml = RandomForest(max_depth=None, n_features=5, n_trees=10)
 ml.fit(X_train, y_train)
 predictions = ml.predict(X_test)
 
