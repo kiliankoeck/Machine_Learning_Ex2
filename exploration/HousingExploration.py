@@ -1,9 +1,5 @@
 import pandas as pd
 import matplotlib.pyplot as plt
-from sklearn.model_selection import train_test_split
-from sklearn.preprocessing import LabelEncoder, StandardScaler
-from implementation.ChatGPT import RandomForestRegressor
-import numpy as np
 
 file_path = '../datasets/House_Rent/House_Rent_Dataset.csv'
 house_rent_data = pd.read_csv(file_path)

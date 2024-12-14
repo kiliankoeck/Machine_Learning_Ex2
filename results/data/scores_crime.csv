@@ -1,0 +1,7 @@
+Model,Type,Score
+Custom Random Forest,mse,0.018640099104830554
+Custom Random Forest,r2,0.5700234810195339
+ChatGPT Random Forest,mse,0.016915316262922815
+ChatGPT Random Forest,r2,0.6098095421445274
+Sklearn Random Forest,mse,0.01621677162907268
+Sklearn Random Forest,r2,0.6259230718165627

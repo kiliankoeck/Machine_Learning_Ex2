@@ -1,0 +1,7 @@
+Model,Type,Time
+Custom Random Forest,training time,6.310549736022949
+Custom Random Forest,prediction time,0.04043078422546387
+ChatGPT Random Forest,training time,9.066426038742065
+ChatGPT Random Forest,prediction time,0.02996349334716797
+Sklearn Random Forest,training time,1.1614704132080078
+Sklearn Random Forest,prediction time,0.021517276763916016
