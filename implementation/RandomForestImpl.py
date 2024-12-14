@@ -42,7 +42,7 @@ class DecisionTree:
 
         # To fix error in house dataset
         if best_feature is None or best_thresh is None:
-           return Node(value=np.mean(y))
+           return Node(value=np.median(y))
 
         left_idxs, right_idxs = self._split(X[:, best_feature], best_thresh)
         left = self._grow_tree(X[left_idxs, :], y[left_idxs], depth=depth + 1)
@@ -110,18 +110,37 @@ class RandomForest:
         self.trees = []
 
     def fit(self, X, y):
+        # Convert X and y to numpy arrays if they are pandas objects
         X = X.to_numpy() if isinstance(X, pd.DataFrame) else X
         y = y.to_numpy() if isinstance(y, pd.Series) else y
         self.trees = []
+
+        # Resolve the number of features to use in splits
+        n_total_features = X.shape[1]
+        if isinstance(self.n_features, str):
+            if self.n_features == 'sqrt':
+                resolved_n_features = int(np.sqrt(n_total_features))
+            elif self.n_features == 'log2':
+                resolved_n_features = int(np.log2(n_total_features))
+            else:
+                raise ValueError(f"Unknown n_features value: {self.n_features}")
+        else:
+            resolved_n_features = self.n_features if self.n_features else n_total_features
+
+        # Train each decision tree
         for _ in range(self.n_trees):
-            tree = DecisionTree(max_depth=self.max_depth, min_samples_split=self.min_samples_split, n_features=self.n_features)
+            tree = DecisionTree(
+                max_depth=self.max_depth,
+                min_samples_split=self.min_samples_split,
+                n_features=resolved_n_features  # Pass the resolved number of features
+            )
             X_sample, y_sample = self._bootstrap_samples(X, y)
             tree.fit(X_sample, y_sample)
             self.trees.append(tree)
 
     def _bootstrap_samples(self, X, y):
         n_samples = X.shape[0]
-        idxs = np.random.choice(n_samples, n_samples // 3, replace=True)
+        idxs = np.random.choice(n_samples, n_samples // 3, replace=True) 
         return X[idxs], y[idxs]
 
     def predict(self, X):
@@ -129,4 +148,17 @@ class RandomForest:
         predictions = np.array([tree.predict(X) for tree in self.trees])
         tree_preds = np.swapaxes(predictions, 0, 1)
         return np.array([np.mean(pred) for pred in tree_preds])
-    
+
+    def set_params(self, **params):
+        for param, value in params.items():
+            if hasattr(self, param):
+                setattr(self, param, value)
+        return self
+
+    def get_params(self, deep=True):
+        return {
+            'n_trees': self.n_trees,
+            'max_depth': self.max_depth,
+            'min_samples_split': self.min_samples_split,
+            'n_features': self.n_features
+        }
