@@ -40,6 +40,10 @@ class DecisionTree:
 
         best_feature, best_thresh = self._best_split(X, y, feat_idxs)
 
+        # To fix error in house dataset
+        if best_feature is None or best_thresh is None:
+           return Node(value=np.mean(y))
+
         left_idxs, right_idxs = self._split(X[:, best_feature], best_thresh)
         left = self._grow_tree(X[left_idxs, :], y[left_idxs], depth=depth + 1)
         right = self._grow_tree(X[right_idxs, :], y[right_idxs], depth=depth + 1)
@@ -125,3 +129,4 @@ class RandomForest:
         predictions = np.array([tree.predict(X) for tree in self.trees])
         tree_preds = np.swapaxes(predictions, 0, 1)
         return np.array([np.mean(pred) for pred in tree_preds])
+    

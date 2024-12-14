@@ -1,4 +1,13 @@
+import sys
+import os
+
+# Add the project root directory to sys.path
+sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
+
+import time 
 import pandas as pd
+import numpy as np
+
 from sklearn.compose import ColumnTransformer
 from sklearn.decomposition import PCA
 from sklearn.model_selection import train_test_split
@@ -11,7 +20,7 @@ from sklearn.metrics import mean_squared_error, r2_score
 from sklearn.pipeline import Pipeline
 
 # Load the dataset
-file_path = '../datasets/House_Rent/House_Rent_Dataset.csv'
+file_path = 'datasets/House_Rent/House_Rent_Dataset.csv'
 house_rent_data = pd.read_csv(file_path)
 
 house_rent_data = house_rent_data.drop(columns=['Posted On'])
@@ -87,20 +96,46 @@ sklearn_pipeline = Pipeline([
     ('model', RFSklearn())
 ])
 
+# Train and predict with custom pipeline
+print("Training Custom Pipeline...")
+start_time = time.time()
 custom_pipeline.fit(X_train, y_train)
+training_time_custom = time.time() - start_time
+
+start_time = time.time()
 y_pred_custom = custom_pipeline.predict(X_test)
+prediction_time_custom = time.time() - start_time
 
+# Train and predict with ChatGPT pipeline
+print("Training ChatGPT Pipeline...")
+start_time = time.time()
 chatgpt_pipeline.fit(X_train, y_train)
+training_time_chatgpt = time.time() - start_time
+
+start_time = time.time()
 y_pred_chatgpt = chatgpt_pipeline.predict(X_test)
+prediction_time_chatgpt = time.time() - start_time
 
+# Train and predict with Sklearn pipeline
+print("Training Sklearn Pipeline...")
+start_time = time.time()
 sklearn_pipeline.fit(X_train, y_train)
-y_pred_sklearn = sklearn_pipeline.predict(X_test)
+training_time_sklearn = time.time() - start_time
 
+start_time = time.time()
+y_pred_sklearn = sklearn_pipeline.predict(X_test)
+prediction_time_sklearn = time.time() - start_time
+
+# Print metrics and timing for all pipelines
+print("Custom Pipeline - Training Time: {:.4f}s, Prediction Time: {:.4f}s".format(training_time_custom, prediction_time_custom))
 print("Mean Squared Error own:", mean_squared_error(y_test, y_pred_custom))
 print("R2 own:", r2_score(y_test, y_pred_custom))
 
+print("ChatGPT Pipeline - Training Time: {:.4f}s, Prediction Time: {:.4f}s".format(training_time_chatgpt, prediction_time_chatgpt))
 print("Mean Squared Error chatgpt:", mean_squared_error(y_test, y_pred_chatgpt))
 print("R2 chatgpt:", r2_score(y_test, y_pred_chatgpt))
 
+print("Sklearn Pipeline - Training Time: {:.4f}s, Prediction Time: {:.4f}s".format(training_time_sklearn, prediction_time_sklearn))
 print("Mean Squared Error sklearn rf:", mean_squared_error(y_test, y_pred_sklearn))
 print("R2 sklearn rf:", r2_score(y_test, y_pred_sklearn))
+
