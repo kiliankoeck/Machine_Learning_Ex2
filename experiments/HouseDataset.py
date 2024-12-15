@@ -9,7 +9,7 @@ import pandas as pd
 from sklearn.compose import ColumnTransformer
 from sklearn.model_selection import train_test_split, GridSearchCV
 from sklearn.preprocessing import RobustScaler, OneHotEncoder, OrdinalEncoder
-from sklearn.metrics import mean_squared_error, r2_score
+from sklearn.metrics import mean_squared_error, r2_score, make_scorer
 from sklearn.pipeline import Pipeline
 
 from implementation.RandomForestImpl import RandomForest as RFCustom
@@ -126,11 +126,16 @@ param_grid = {
     'model__n_features': [None, 10, 50, 100],
 }
 
+scoring = {
+    'r2': make_scorer(r2_score),
+    'mse': make_scorer(mean_squared_error, greater_is_better=False)  # Negative MSE for minimization
+}
+
 
 # Perform Grid Search for Custom Random Forest
 def perform_grid_search(pipeline, param_grid, model_name):
     print(f"\nPerforming Grid Search for {model_name}...")
-    grid_search = GridSearchCV(pipeline, param_grid, cv=3, scoring='r2', n_jobs=-1, verbose=2)
+    grid_search = GridSearchCV(pipeline, param_grid, cv=3, scoring=scoring, refit='r2', n_jobs=-1, verbose=2)
 
     # Training with grid search
     start_time = time.time()

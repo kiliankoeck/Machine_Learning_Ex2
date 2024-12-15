@@ -60,23 +60,31 @@ plt.savefig(f'../results/plots/mse_scores_housing.png')
 plt.close('all')
 
 
-def plot_hyperparameter_scores(grid_data, dataset_name, relevant_columns):
+def plot_grouped_bar_with_scores(grid_data, dataset_name, relevant_columns):
     for hyperparam in relevant_columns:
-        grouped_data = grid_data.groupby(hyperparam)['mean_test_score'].mean().reset_index()
-
-        plt.figure(figsize=(10, 6))
-        plt.bar(grouped_data[hyperparam].astype(str), grouped_data['mean_test_score'])
-        plt.title(f"Mean Scores for {hyperparam} in {dataset_name} Dataset")
-        param_name = hyperparam.replace('param_model__', '').replace('_', ' ')
-        plt.xlabel(param_name.title())
+        grouped_data = grid_data.groupby(hyperparam)[['mean_test_r2', 'mean_test_mse']].mean().reset_index()
+        grouped_data['mean_test_mse'] = -grouped_data['mean_test_mse']
+        legend_label_mse = 'MSE Score'
+        if dataset_name.lower() == 'housing':
+            grouped_data['mean_test_mse'] = np.log(grouped_data['mean_test_mse'])
+            legend_label_mse = 'MSE Score (Log Transformed)'
+        pivot_data = grouped_data.melt(id_vars=[hyperparam], value_vars=['mean_test_r2', 'mean_test_mse'],
+                                       var_name='Metric', value_name='Score')
+        pivot_table = pivot_data.pivot(index=hyperparam, columns='Metric', values='Score')
+        ax = pivot_table.plot(kind='bar', figsize=(12, 6))
+        for container in ax.containers:
+            ax.bar_label(container, fmt='%.2f')
+        plt.title(f"Mean Scores for {hyperparam.replace('param_model__', '').replace('_', ' ').title()} in {dataset_name} Dataset")
         plt.ylabel('Mean Test Score')
+        plt.xlabel(hyperparam.replace('param_model__', '').replace('_', ' ').title())
         plt.xticks(rotation=45)
+        plt.legend(title='Metric', labels=['R2 Score', legend_label_mse], loc='right')
         plt.tight_layout()
-        plt.savefig(f'../results/plots/{dataset_name.lower()}_{param_name}.png')
+        plt.savefig(f'../results/plots/{dataset_name.lower()}_{hyperparam.replace("param_model__", "").replace("_", "")}.png')
+        plt.close('all')
 
 
 relevant_columns = ['param_model__max_depth', 'param_model__n_features', 'param_model__n_trees']
 
-plot_hyperparameter_scores(crime_grid, 'Crime', relevant_columns)
-
-plot_hyperparameter_scores(housing_grid, 'Housing', relevant_columns)
+plot_grouped_bar_with_scores(crime_grid, 'Crime', relevant_columns)
+plot_grouped_bar_with_scores(housing_grid, 'Housing', relevant_columns)

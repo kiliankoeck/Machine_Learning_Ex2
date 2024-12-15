@@ -12,7 +12,7 @@ from implementation.RandomForestImpl import RandomForest as RFCustom
 from implementation.ChatGPT import RandomForestRegressor as RFChatGPT
 from sklearn.ensemble import RandomForestRegressor as RFSklearn
 from sklearn.impute import SimpleImputer
-from sklearn.metrics import mean_squared_error, r2_score
+from sklearn.metrics import mean_squared_error, r2_score, make_scorer
 
 data_file = '../datasets/Communities_Crime/communities.data'
 names_file = '../datasets/Communities_Crime/communities.names'
@@ -102,10 +102,15 @@ param_grid = {
     'model__n_features': [None, 10, 50, 100],
 }
 
+scoring = {
+    'r2': make_scorer(r2_score),
+    'mse': make_scorer(mean_squared_error, greater_is_better=False)  # Negative MSE for minimization
+}
+
 
 def perform_grid_search(model, param_grid, X_train, y_train, X_test, y_test, model_name):
     print(f"\nPerforming Grid Search for {model_name}...")
-    grid_search = GridSearchCV(model, param_grid, cv=3, scoring='r2', n_jobs=-1, verbose=2)
+    grid_search = GridSearchCV(model, param_grid, cv=3, scoring=scoring, refit='r2', n_jobs=-1, verbose=2)
 
     # Training with grid search
     start_time = time.time()
