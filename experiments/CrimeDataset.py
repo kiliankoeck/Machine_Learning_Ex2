@@ -56,7 +56,6 @@ X_test = pd.DataFrame(imputer.transform(X_test), columns=X_test.columns, index=X
 runtimes = []
 scores = []
 
-
 # Function to evaluate a pipeline
 def evaluate_model(model, X_train, X_test, y_train, y_test, model_name):
     print(f"\nEvaluating {model_name}...")
